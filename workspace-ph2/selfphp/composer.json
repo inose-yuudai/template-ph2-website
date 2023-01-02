@@ -1,0 +1,11 @@
+{
+    "require": {
+        "guzzlehttp/guzzle": "^2.1",
+        "ezyang/htmlpurifier": "*"
+    },
+    "autoload": {
+        "psr-4": {
+          "wings\\selfphp\\" : "lib/wings/selfphp"
+        }
+    }
+}

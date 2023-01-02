@@ -1,0 +1,12 @@
+services:
+  web:
+      build: .
+      environment:
+        FLASK_ENV: development
+      ports:
+        - "5002:5000"
+      volumes:
+        - ./src:/usr/src/app
+
+
+
