@@ -10,14 +10,16 @@ $sql = 'SELECT*FROM questions ORDER BY id';
 $questions = $dbh->query("SELECT * FROM questions")->fetchAll(PDO::FETCH_ASSOC);
 $choices = $dbh->query("SELECT * FROM choices")->fetchAll(PDO::FETCH_ASSOC);
 
-
 foreach ($choices as $key => $choice) {
   $index = array_search($choice["question_id"], array_column($questions, 'id'));
   $questions[$index]["choices"][] = $choice;
-
 }
-// var_dump ($questions);
+require_once(dirname(__FILE__) . '/../db/pdo.php');
+
+$pdo = Database::get();
 ?>
+
+
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -31,7 +33,9 @@ foreach ($choices as $key => $choice) {
   <!-- Google Fonts読み込み -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&display=swap"
+    rel="stylesheet">
   <script src="../assets/scripts/common.js" defer></script>
   <script src="../assets/scripts/quiz.js" defer></script>
 </head>
@@ -47,7 +51,7 @@ foreach ($choices as $key => $choice) {
             <a href="../" class="p-header__nav__item__link">POSSEとは</a>
           </li>
           <li class="p-header__nav__item">
-            <a href="./" class="p-header__nav__item__link">クイズ</a>
+            <a href="../quiz/quiz.php" class="p-header__nav__item__link">クイズ</a>
           </li>
         </ul>
       </nav>
@@ -61,12 +65,14 @@ foreach ($choices as $key => $choice) {
       </div>
       <ul class="p-header__sns p-sns">
         <li class="p-sns__item">
-          <a href="https://twitter.com/posse_program" target="_blank" rel="noopener noreferrer" class="p-sns__item__link" aria-label="Twitter">
+          <a href="https://twitter.com/posse_program" target="_blank" rel="noopener noreferrer" class="p-sns__item__link"
+            aria-label="Twitter">
             <i class="u-icon__twitter"></i>
           </a>
         </li>
         <li class="p-sns__item">
-          <a href="https://www.instagram.com/posse_programming/" target="_blank" rel="noopener noreferrer" class="p-sns__item__link" aria-label="instagram">
+          <a href="https://www.instagram.com/posse_programming/" target="_blank" rel="noopener noreferrer"
+            class="p-sns__item__link" aria-label="instagram">
             <i class="u-icon__instagram"></i>
           </a>
         </li>
@@ -74,6 +80,8 @@ foreach ($choices as $key => $choice) {
     </div>
   </header>
   <!-- /.l-header .p-header -->
+
+
   <main class="l-main">
     <section class="p-hero p-quiz-hero">
       <div class="l-container">
@@ -83,9 +91,11 @@ foreach ($choices as $key => $choice) {
         </h1>
       </div>
     </section>
+    <!-- /.p-hero .p-quiz-hero -->
+
     <div class="p-quiz-container l-container">
       <?php for ($i = 0; $i < count($questions); $i++) { ?>
-      <section class="p-quiz-box js-quiz" data-quiz="<?= $i ?>">
+        <section class="p-quiz-box js-quiz" data-quiz="<?= $i ?>">
           <div class="p-quiz-box__question">
             <h2 class="p-quiz-box__question__title">
               <span class="p-quiz-box__label">Q<?= $i + 1 ?></span>
@@ -93,49 +103,61 @@ foreach ($choices as $key => $choice) {
             </h2>
             <figure class="p-quiz-box__question__image">
               <img src="/assets/img/quiz/<?= $questions[$i]["image"] ?>" alt="">
-              <!--変数の指定の仕方-->
             </figure>
-            <div class="p-quiz-box__answer">
-              <span class="p-quiz-box__label p-quiz-box__label--accent">A</span>
-              <ul class="p-quiz-box__answer__list">
-                <?php foreach ($questions[$i]["choices"] as $key => $choice) { ?>
-                  <li class="p-quiz-box__answer__item">
-                    <button class="p-quiz-box__answer__button js-answer" data-answer="<?= $i ?>" data-correct="<?= $choice["valid"] ?>">
-                      <?= $choice["name"]; ?><i class="u-icon__arrow"></i>
-                    </button>
-                  </li>
-                <?php } ?>
-              </ul>
+          </div>
+          <div class="p-quiz-box__answer">
+            <span class="p-quiz-box__label p-quiz-box__label--accent">A</span>
+            <ul class="p-quiz-box__answer__list">
+              <?php foreach($questions[$i]["choices"] as $key => $choice) { ?>
+                <li class="p-quiz-box__answer__item">
+                  <button class="p-quiz-box__answer__button js-answer" data-answer="<?= $i ?>" data-correct="<?= $choice["valid"] ?>">
+                    <?= $choice["name"] ?><i class="u-icon__arrow"></i>
+                  </button>
+                </li>
+              <?php } ?>
+            </ul>
+            <div class="p-quiz-box__answer__correct js-answerBox">
+              <p class="p-quiz-box__answer__correct__title js-answerTitle"></p>
+              <p class="p-quiz-box__answer__correct__content">
+                <span class="p-quiz-box__answer__correct__content__label">A</span>
+                <span class="js-answerText"></span>
+              </p>
             </div>
           </div>
           <?php if ($questions[$i]["supplement"]) { ?>
-            <cite class="p-quiz-box__note">
-              <i class="u-icon__note"></i><?= $questions[$i]["supplement"] ?>
-            </cite>
-          <?php } ?>
+          <cite class="p-quiz-box__note">
+            <i class="u-icon__note"></i><?= $questions[$i]["supplement"] ?>
+          </cite>
+          <? } ?>
         </section>
-        <?php } ?>
+      <?php } ?>
+      <!-- ./p-quiz-box -->
     </div>
+    <!-- /.l-container .p-quiz-container -->
   </main>
+
   <div class="p-line">
     <div class="l-container">
       <div class="p-line__body">
         <div class="p-line__body__inner">
           <h2 class="p-heading -light p-line__title"><i class="u-icon__line"></i>POSSE 公式LINE</h2>
           <div class="p-line__content">
-            <p>公式LINEにてご質問を随時受け付けておりますa。<br>詳細やPOSSE最新情報につきましては、公式LINEにてお知らせ致しますので<br>下記ボタンより友達追加をお願いします！</p>
+            <p>公式LINEにてご質問を随時受け付けております。<br>詳細やPOSSE最新情報につきましては、公式LINEにてお知らせ致しますので<br>下記ボタンより友達追加をお願いします！</p>
           </div>
           <div class="p-line__footer">
-            <a href="https://line.me/R/ti/p/@651htnqp?from=page" target="_blank" rel="noopener noreferrer" class="p-line__button">LINE追加<i class="u-icon__link"></i></a>
+            <a href="https://line.me/R/ti/p/@651htnqp?from=page" target="_blank" rel="noopener noreferrer"
+              class="p-line__button">LINE追加<i class="u-icon__link"></i></a>
           </div>
         </div>
       </div>
     </div>
   </div>
   <!-- /.p-line -->
+
   <footer class="l-footer p-footer">
     <div class="p-fixedLine">
-      <a href="https://line.me/R/ti/p/@651htnqp?from=page" target="_blank" rel="noopener noreferrer" class="p-fixedLine__link">
+      <a href="https://line.me/R/ti/p/@651htnqp?from=page" target="_blank" rel="noopener noreferrer"
+        class="p-fixedLine__link">
         <i class="u-icon__line"></i>
         <p class="p-fixedLine__link__text"><span class="u-sp-hidden">POSSE</span>公式LINEで<br>最新情報をGET！</p>
         <i class="u-icon__link"></i>
@@ -146,17 +168,20 @@ foreach ($choices as $key => $choice) {
         <span class="p-footer__logo">
           <img src="../assets/img/logo.svg" alt="POSSE">
         </span>
-        <a href="https://posse-ap.com/" target="_blank" rel="noopener noreferrer" class="p-footer__siteinfo__link">POSSE公式サイト</a>
+        <a href="https://posse-ap.com/" target="_blank" rel="noopener noreferrer"
+          class="p-footer__siteinfo__link">POSSE公式サイト</a>
       </div>
       <div class="p-footer__sns">
         <ul class="p-sns__list p-footer__sns__list">
           <li class="p-sns__item">
-            <a href="https://twitter.com/posse_program" target="_blank" rel="noopener noreferrer" class="p-sns__item__link" aria-label="Twitter">
+            <a href="https://twitter.com/posse_program" target="_blank" rel="noopener noreferrer"
+              class="p-sns__item__link" aria-label="Twitter">
               <i class="u-icon__twitter"></i>
             </a>
           </li>
           <li class="p-sns__item">
-            <a href="https://www.instagram.com/posse_programming/" target="_blank" rel="noopener noreferrer" class="p-sns__item__link" aria-label="instagram">
+            <a href="https://www.instagram.com/posse_programming/" target="_blank" rel="noopener noreferrer"
+              class="p-sns__item__link" aria-label="instagram">
               <i class="u-icon__instagram"></i>
             </a>
           </li>

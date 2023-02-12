@@ -1,4 +1,18 @@
 <?php
+
+session_start();
+
+if(!isset($_SESSION['id'])) {
+  $_SESSION['id'] = true;
+  $_SESSION['login_message_shown'] = true;
+  echo "ログインに成功しました2";
+} elseif (!isset($_SESSION['login_message_shown'])) {
+  $_SESSION['login_message_shown'] = true;
+  echo "ログインに成功しました";
+}
+
+// ↑一度ログインしたら表示するようにするもの
+
 /* ドライバ呼び出しを使用して MySQL データベースに接続する */
 $dsn = 'mysql:dbname=posse;host=db';
 $user = 'root';
@@ -39,6 +53,7 @@ $is_empty = count($questions) === 0;
 //   $questions = $pdo->query("SELECT * FROM questions")->fetchAll(PDO::FETCH_ASSOC);
 //   $is_empty = count($questions) === 0;
 // }
+
 ?>
 
 <!DOCTYPE html>
@@ -64,9 +79,9 @@ $is_empty = count($questions) === 0;
 </head>
 
 <body>
-  <!-- <?php include(dirname(__FILE__) . '/../components/admin/header.php'); ?> -->
+  <?php include(dirname(__FILE__) . '/../components/admin/header.php'); ?>
   <div class="wrapper">
-    <!-- <?php include(dirname(__FILE__) . '/../components/admin/sidebar.php'); ?> -->
+    <?php include(dirname(__FILE__) . '/../components/admin/sidebar.php'); ?>
     <main>
 <div class="container">
 <h1 class="mb-4">問題一覧</h1>
@@ -78,8 +93,8 @@ $is_empty = count($questions) === 0;
                 <th>問題</th>
                 <th></th>
             </tr>
-         </thead>
-         <tbody>
+        </thead>
+        <tbody>
             <?php foreach($questions as $question) { ?>
             <tr id="question-<?= $question["id"] ?>">
                 <td><?= $question["id"]; ?></td>
@@ -89,6 +104,8 @@ $is_empty = count($questions) === 0;
                   </a>
                 </td>
                 <td onclick="deleteQuestion(<?= $question['id'] ?>)">削除</td>
+
+              </td>
             </tr>
             <?php } ?>
           </tbody>
@@ -97,19 +114,24 @@ $is_empty = count($questions) === 0;
           問題がありません。
         <?php } ?>
       </div>
+      <a href="../admin/questions/create.php"> 問題作成</a>
     </main>
   </div>
   <script>
     const deleteQuestion = async (questionId) => {
       if (!confirm('削除してもよろしいでしょうか？')) return
       const res = await fetch(`http://localhost:8080/services/delete_question.php?id=${questionId}`, { method: 'DELETE' });
-      if (res.status === 204) {
+      if (res.status === 200) {
         alert('削除に成功しました')
         document.getElementById(`question-${questionId}`).remove()
       } else {
         alert('削除に失敗しました')
       }
     }
+
+
+
+
   </script>
 </body>
 
